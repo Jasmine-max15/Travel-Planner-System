@@ -1,0 +1,113 @@
+import mysql.connector
+
+# Connect to database
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="JS1503@2004",
+    database="travel_planner"
+)
+
+cursor = db.cursor()
+
+# ------------------------
+# Add User
+# ------------------------
+def add_user(name, email):
+    sql = "INSERT INTO Users (name, email) VALUES (%s, %s)"
+    values = (name, email)
+    cursor.execute(sql, values)
+    db.commit()
+    print("User added successfully!")
+
+# ------------------------
+# Add Destination
+# ------------------------
+def add_destination(city, country):
+    sql = "INSERT INTO Destinations (city, country) VALUES (%s, %s)"
+    values = (city, country)
+    cursor.execute(sql, values)
+    db.commit()
+    print("Destination added!")
+
+# ------------------------
+# Add Hotel
+# ------------------------
+def add_hotel(name, city, price):
+    sql = "INSERT INTO Hotels (name, city, price_per_night) VALUES (%s, %s, %s)"
+    values = (name, city, price)
+    cursor.execute(sql, values)
+    db.commit()
+    print("Hotel added!")
+
+# ------------------------
+# Plan Trip
+# ------------------------
+def plan_trip(user_id, destination_id, hotel_id, start, end, budget):
+    sql = """INSERT INTO Trips
+             (user_id, destination_id, hotel_id, start_date, end_date, budget)
+             VALUES (%s,%s,%s,%s,%s,%s)"""
+    values = (user_id, destination_id, hotel_id, start, end, budget)
+    cursor.execute(sql, values)
+    db.commit()
+    print("Trip planned successfully!")
+
+# ------------------------
+# View Trips
+# ------------------------
+def view_trips():
+    cursor.execute("""
+    SELECT Users.name, Destinations.city, Hotels.name, start_date, end_date, budget
+    FROM Trips
+    JOIN Users ON Trips.user_id = Users.user_id
+    JOIN Destinations ON Trips.destination_id = Destinations.destination_id
+    JOIN Hotels ON Trips.hotel_id = Hotels.hotel_id
+    """)
+
+    for trip in cursor.fetchall():
+        print(trip)
+
+# ------------------------
+# Menu
+# ------------------------
+while True:
+    print("\nTravel Planner")
+    print("1 Add User")
+    print("2 Add Destination")
+    print("3 Add Hotel")
+    print("4 Plan Trip")
+    print("5 View Trips")
+    print("6 Exit")
+
+    choice = input("Enter choice: ")
+
+    if choice == "1":
+        name = input("Enter name: ")
+        email = input("Enter email: ")
+        add_user(name, email)
+
+    elif choice == "2":
+        city = input("City: ")
+        country = input("Country: ")
+        add_destination(city, country)
+
+    elif choice == "3":
+        name = input("Hotel name: ")
+        city = input("City: ")
+        price = int(input("Price per night: "))
+        add_hotel(name, city, price)
+
+    elif choice == "4":
+        uid = int(input("User ID: "))
+        did = int(input("Destination ID: "))
+        hid = int(input("Hotel ID: "))
+        start = input("Start date (YYYY-MM-DD): ")
+        end = input("End date (YYYY-MM-DD): ")
+        budget = int(input("Budget: "))
+        plan_trip(uid, did, hid, start, end, budget)
+
+    elif choice == "5":
+        view_trips()
+
+    elif choice == "6":
+        break
